@@ -78,3 +78,55 @@ WHERE LOCATION2 = "수원"
 GROUP BY YEAR(YM)
 ORDER BY YEAR(YM) ;
 
+/* "Finding a development vehicle that meets your requirements "
+Link: https://blog.naver.com/kino_de/223714969149
+Problem:
+I want to retrieve information about developers with Python or C# skills from the DEVELOPERS table. Please write an SQL statement to retrieve the ID, email, first name, and last name of developers matching the criteria.
+Please sort the results in ascending order by ID.
+*/
+
+-- Solution
+SELECT 
+ID,
+EMAIL,
+FIRST_NAME,
+LAST_NAME
+FROM DEVELOPERS 
+WHERE SKILL_CODE & (SELECT SUM(CODE) FROM SKILLCODES 
+                   WHERE NAME IN ("Python", "C#"))
+ORDER BY ID ;
+
+/* "Get upgraded items"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/273711
+Problem: 
+Please write an SQL statement that outputs the item ID (ITEM_ID), item name (ITEM_NAME), and item rarity (RARITY) for all subsequent upgrade items of items with a rarity of ‘RARE’. Sort the results in descending order by item ID.
+*/
+
+-- Solution 
+SELECT 
+ITEM_ID,
+ITEM_NAME,
+RARITY
+FROM ITEM_INFO
+WHERE ITEM_ID IN (SELECT T.ITEM_ID FROM ITEM_INFO I
+                 JOIN ITEM_TREE T
+                 ON T.PARENT_ITEM_ID = I.ITEM_ID
+                 WHERE RARITY = "RARE") 
+ORDER BY ITEM_ID DESC ;
+
+/* "How to Get ROOT Items"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/273710
+Problem: Please write an SQL statement to find the ROOT item and output the item ID (ITEM_ID) and item name (ITEM_NAME). At this time, please sort the results in ascending order based on the item ID.
+*/
+
+-- Solution
+SELECT 
+I.ITEM_ID, 
+I.ITEM_NAME 
+FROM ITEM_INFO I
+JOIN ITEM_TREE T
+ON I.ITEM_ID = T.ITEM_ID
+WHERE PARENT_ITEM_ID IS NULL 
+ORDER BY ITEM_ID ; 
+
+/*
