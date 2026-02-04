@@ -198,4 +198,43 @@ Please write an SQL statement that outputs the number of cars in the CAR_RENTAL_
 */
 
 -- Solution 
+SELECT
+CAR_TYPE, 
+COUNT(*) AS "CARS"
+FROM CAR_RENTAL_COMPANY_CAR 
+WHERE OPTIONS REGEXP('통풍시트|열선시트|가죽시트')
+GROUP BY CAR_TYPE
+ORDER BY CAR_TYPE ; 
 
+
+/* "Print a list of books and authors that meet the specified conditions"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/144854
+Problem: 
+Please write an SQL statement to output a list of the book ID (BOOK_ID), author name (AUTHOR_NAME), and publication date (PUBLISHED_DATE) for books belonging to the ‘Economics’ category.
+Sort the results in ascending order by publication date.
+*/
+
+-- Solution
+SELECT
+B.BOOK_ID, A.AUTHOR_NAME, DATE_FORMAT(B.PUBLISHED_DATE, '%Y-%m-%d') AS PUBLISHED_DATE
+FROM BOOK B
+JOIN AUTHOR A
+ON B.AUTHOR_ID = A.AUTHOR_ID
+WHERE B.CATEGORY = "경제"
+ORDER BY PUBLISHED_DATE ;
+
+
+/*"Total ice cream orders by ingredient"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/133026
+Problem:
+Please write an SQL statement to query the total order volume for each ice cream ingredient type and the total order volume for ice cream by ingredient type during the first half of the year, sorted in ascending order by total order volume. Specify the column name representing the total order volume as TOTAL_ORDER.
+*/
+
+-- Solution
+SELECT
+I.INGREDIENT_TYPE,
+SUM(F.TOTAL_ORDER) AS TOTAL_ORDER
+FROM FIRST_HALF F
+JOIN ICECREAM_INFO I
+ON F.FLAVOR = I.FLAVOR
+GROUP BY INGREDIENT_TYPE ; 
