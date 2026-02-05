@@ -61,6 +61,18 @@ Problem: Query a list of CITY and STATE from the STATION table.
 SELECT CITY, STATE 
 FROM STATION ; 
 
+/* "Weather Observation Station 2"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-2/problem?isFullScreen=true
+Problem: Query the following two values from the STATION table:
+
+The sum of all values in LAT_N rounded to a scale of  2 decimal places.
+The sum of all values in LONG_W rounded to a scale of 2 decimal places.
+*/
+-- Solution 
+SELECT ROUND(SUM(LAT_N), 2),
+ROUND(SUM(LONG_W), 2)
+FROM STATION ; 
+
 
 /* "Weather Observation Station 3"
 Link: https://www.hackerrank.com/challenges/weather-observation-station-3/problem?isFullScreen=true
@@ -157,6 +169,89 @@ FROM STATION
 WHERE CITY REGEXP('^[^AEIOU]') AND 
 CITY REGEXP('[^AEIOU]$') ; 
 
+
+/* "Weather Observation Station 13"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-13/problem?isFullScreen=true
+Problem: Query the sum of Northern Latitudes (LAT_N) from STATION having values greater than  38.7880 and less than 137.2345. Truncate your answer to 4 decimal places.
+*/
+-- Solution
+SELECT ROUND(SUM(LAT_N), 4)
+FROM STATION
+WHERE LAT_N >38.7880 AND LAT_N < 137.2345 ;
+
+/* "Weather Observation Station 14"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-14/problem?isFullScreen=true
+Problem: Query the greatest value of the Northern Latitudes (LAT_N) from STATION that is less than  137.2345. Truncate your answer to  4 decimal places.
+*/
+-- Solution 
+SELECT 
+ROUND(MAX(LAT_N), 4)
+FROM STATION
+WHERE LAT_N < 137.2345 ;
+
+/* "Weather Observation Station 15"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-15/problem?isFullScreen=true
+Problem: Query the Western Longitude (LONG_W) for the largest Northern Latitude (LAT_N) in STATION that is less than 137.2345 . Round your answer to  4 decimal places.
+*/
+-- Solution
+SELECT ROUND(LONG_W, 4)
+FROM STATION
+WHERE LAT_N = (SELECT MAX(LAT_N) FROM STATION WHERE LAT_N < 137.2345) ; 
+
+
+/* "Weather Observation Station 16"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-16/problem?isFullScreen=true
+Problem: Query the smallest Northern Latitude (LAT_N) from STATION that is greater than 38.7780 . Round your answer to 4 decimal places.
+*/
+-- Solution 
+SELECT ROUND(MIN(LAT_N), 4)
+FROM STATION
+WHERE LAT_N > 38.7780 ; 
+
+/* "Weather Observation Station 17"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-17/problem?isFullScreen=true
+Problem: Query the Western Longitude (LONG_W)where the smallest Northern Latitude (LAT_N) in STATION is greater than 38.7780 . Round your answer to  4 decimal places.
+*/
+-- Solution
+SELECT ROUND(LONG_W, 4)
+FROM STATION
+WHERE LAT_N = (SELECT MIN(LAT_N) FROM STATION WHERE LAT_N > 38.7780) ;
+
+/* "Weather Observation Station 18"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-18/problem?isFullScreen=true
+Problem: Consider P1(a,b) and P2(c,d) to be two points on a 2D plane.
+
+ a happens to equal the minimum value in Northern Latitude (LAT_N in STATION).
+ b chappens to equal the minimum value in Western Longitude (LONG_W in STATION).
+ c happens to equal the maximum value in Northern Latitude (LAT_N in STATION).
+ d happens to equal the maximum value in Western Longitude (LONG_W in STATION).
+Query the Manhattan Distance between points P1 and P2 and round it to a scale of 4 decimal places.
+
+*/
+-- Solution
+-- Manhatten Distance (|a-c| + |b-d|)
+SELECT 
+ROUND((ABS(MIN(LAT_N)-MAX(LAT_N)) + ABS(MIN(LONG_W) - MAX(LONG_W))), 4)
+FROM STATION ; 
+
+/* "Weather Observation Station 19"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-19/problem?isFullScreen=true
+Problem: Consider P1(a,c) and P2(b,d) to be two points on a 2D plane where (a,b) are the respective minimum and maximum values of Northern Latitude (LAT_N) and (c,d) are the respective minimum and maximum values of Western Longitude (LONG_W) in STATION.
+
+Query the Euclidean Distance between points P1(a,c) and  P2(b,d) and format your answer to display  4 decimal digits.
+*/
+-- Solution 
+-- sqrt((x2-x1)^2 +(y2-y2)^2)
+SELECT
+ROUND(
+    SQRT(
+        POW(MAX(LAT_N) - MIN(LAT_N), 2) + POW(MAX(LONG_W) - MIN(LONG_W),2)
+        ), 4
+    )
+FROM STATION ;
+
+
+
 /* "Higher Than 75 Marks"
 Link: https://www.hackerrank.com/challenges/more-than-75-marks/problem?isFullScreen=true
 Problem: 
@@ -250,3 +345,107 @@ Write a query calculating the amount of error (i.e.: actual - miscalculated aver
 -- Solution
 SELECT CEIL(AVG(SALARY) - AVG(REPLACE(SALARY, "0" , "")) )
 FROM EMPLOYEES
+
+/*"Top Earners"
+Link: https://www.hackerrank.com/challenges/earnings-of-employees/problem?isFullScreen=true
+Problem: We define an employee's total earnings to be their monthly "salary x month" worked, and the maximum total earnings to be the maximum total earnings for any employee in the Employee table. Write a query to find the maximum total earnings for all employees as well as the total number of employees who have maximum total earnings. Then print these values as 2 space-separated integers.
+*/
+
+-- Solution
+SELECT MAX(SALARY * MONTHS),COUNT(*)
+FROM EMPLOYEE
+WHERE SALARY * MONTHS = (SELECT MAX(SALARY * MONTHS) FROM EMPLOYEE) ;
+
+/* "Type of Triangle"
+Link: https://www.hackerrank.com/challenges/what-type-of-triangle/problem?isFullScreen=true
+Problem: 
+Write a query identifying the type of each record in the TRIANGLES table using its three side lengths. Output one of the following statements for each record in the table:
+
+Equilateral: It's a triangle with  3 sides of equal length.
+Isosceles: It's a triangle with  2 sides of equal length.
+Scalene: It's a triangle with  3 sides of differing lengths.
+Not A Triangle: The given values of A, B, and C don't form a triangle.
+*/
+-- Solution
+SELECT 
+    CASE 
+        WHEN (A + B > C) AND (A + C > B) AND (B + C > A) THEN
+            CASE 
+                WHEN  A = B and B = C THEN "Equilateral"
+                WHEN A = B or B = C OR A = C THEN "Isosceles"
+                WHEN A <> B AND B <> C AND A <> C THEN "Scalene"    
+                ELSE "Not A Triangle"
+            END
+        ELSE "Not A Triangle"
+    END
+FROM TRIANGLES ; 
+
+/* "Population Census"
+Link: https://www.hackerrank.com/challenges/asian-population/problem?isFullScreen=true
+Problem: Given the CITY and COUNTRY tables, query the sum of the populations of all cities where the CONTINENT is 'Asia'.
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+-- Solution
+SELECT SUM(C.POPULATION)
+FROM CITY C
+JOIN COUNTRY T
+ON C.COUNTRYCODE = T.CODE
+WHERE T.CONTINENT = "Asia"
+
+/* "Afrian Cities"
+Link: https://www.hackerrank.com/challenges/african-cities/problem?isFullScreen=true
+Problem: Given the CITY and COUNTRY tables, query the names of all cities where the CONTINENT is 'Africa'.
+
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+-- Solution
+SELECT 
+C.NAME
+FROM CITY C
+JOIN COUNTRY T
+ON C.COUNTRYCODE = T.CODE 
+WHERE T.CONTINENT = "Africa"
+
+/* "Average Population of Each Continent"
+Link: https://www.hackerrank.com/challenges/average-population-of-each-continent/problem?isFullScreen=true
+Problem: Given the CITY and COUNTRY tables, query the names of all the continents (COUNTRY.Continent) and their respective average city populations (CITY.Population) rounded down to the nearest integer.
+Note: CITY.CountryCode and COUNTRY.Code are matching key columns.
+*/
+-- Solution
+SELECT
+T.CONTINENT,
+FLOOR(AVG(C.POPULATION))
+FROM CITY C
+JOIN COUNTRY T
+ON C.COUNTRYCODE = T.CODE 
+GROUP BY T.CONTINENT ;
+
+/* "Draw The Triangle 1 "
+Link: https://www.hackerrank.com/challenges/draw-the-triangle-1/problem
+Problem: P(R) represents a pattern drawn by Julia in R rows. The following pattern represents P(5):
+*/
+-- Solution 
+SET @n = 21;
+SELECT REPEAT('* ', @n := @n-1)
+FROM INFORMATION_SCHEMA.tables
+LIMIT 20 ; 
+
+/* "Draw The Triangle 2"
+Link: https://www.hackerrank.com/challenges/draw-the-triangle-2/problem
+Problem: P(R) represents a pattern drawn by Julia in R rows. The following pattern represents P(5):
+*/
+-- Solution
+SET @n = 0;
+SELECT REPEAT('* ', @n := @n+1)
+FROM INFORMATION_SCHEMA.TABLES
+LIMIT 20; 
+
+/* "Revising Aggregations - The Count Function"
+Link: https://www.hackerrank.com/challenges/revising-aggregations-the-count-function/problem?isFullScreen=true
+Problem: Query a count of the number of cities in CITY having a Population larger than 100,000.
+*/
+-- Solution 
+SELECT COUNT(*)
+FROM CITY
+WHERE POPULATION > 100000 ; 
+
