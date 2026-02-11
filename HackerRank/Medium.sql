@@ -109,3 +109,34 @@ ON M.COMPANY_CODE = C.COMPANY_CODE
 LEFT JOIN (SELECT COMPANY_CODE, COUNT(DISTINCT EMPLOYEE_CODE) AS CNT FROM EMPLOYEE GROUP BY COMPANY_CODE) E
 ON E.COMPANY_CODE = C.COMPANY_CODE 
 ORDER BY C.COMPANY_CODE ; 
+
+/* "Weather Observation Station 20"
+Link: https://www.hackerrank.com/challenges/weather-observation-station-20/problem?isFullScreen=true
+Problem: A median is defined as a number separating the higher half of a data set from the lower half. Query the median of the Northern Latitudes (LAT_N) from STATION and round your answer to 4 decimal places.
+*/
+-- Solution 
+SELECT 
+ROUND(LAT_N, 4)
+FROM (SELECT LAT_N, PERCENT_RANK() OVER(ORDER BY LAT_N) AS PERCENT
+FROM STATION) AS A
+WHERE A.PERCENT = 0.5
+
+/* "Challenges"
+Link: https://www.hackerrank.com/challenges/challenges/problem?isFullScreen=true
+Problem: Julia asked her students to create some coding challenges. Write a query to print the hacker_id, name, and the total number of challenges created by each student. Sort your results by the total number of challenges in descending order. If more than one student created the same number of challenges, then sort the result by hacker_id. If more than one student created the same number of challenges and the count is less than the maximum number of challenges created, then exclude those students from the result.
+*/
+-- Solution 
+WITH A AS (
+    SELECT H.HACKER_ID , H.NAME, COUNT(C.CHALLENGE_ID) AS CNT
+    FROM HACKERS H JOIN CHALLENGES C 
+    ON H.HACKER_ID = C.HACKER_ID
+    GROUP BY H.HACKER_ID, H.NAME
+)
+
+SELECT *
+FROM A
+WHERE CNT IN 
+(SELECT CNT FROM A GROUP BY CNT HAVING COUNT(CNT) = 1) 
+OR CNT IN (SELECT MAX(CNT) FROM A)
+ORDER BY CNT DESC, HACKER_ID ; 
+
