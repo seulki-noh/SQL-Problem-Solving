@@ -191,4 +191,35 @@ ORDER BY MONTH, CAR_ID DESC ;
 
 /* "Calculating Book Sales by Category "
 Link: https://school.programmers.co.kr/learn/courses/30/lessons/144855
-Problem: 
+Problem: Please write an SQL statement that calculates the total book sales by category for January 2022 and outputs a list of categories (CATEGORY) and total sales (TOTAL_SALES).
+Sort the results in ascending order by category name.
+*/
+-- Solution
+SELECT
+CATEGORY,
+SUM(SALES) AS TOTAL_SALES
+FROM BOOK B
+LEFT JOIN BOOK_SALES S
+ON B.BOOK_ID = S.BOOK_ID
+WHERE YEAR(SALES_DATE) = 2022 AND MONTH(SALES_DATE) = 1
+GROUP BY CATEGORY
+ORDER BY CATEGORY ; 
+
+/* "Print restaurant information with the most favorites"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/131123
+Problem: Please write an SQL statement to retrieve the food category, ID, restaurant name, and number of favorites for the restaurant with the most favorites in each food category from the REST_INFO table. Sort the results in descending order by food category.
+*/
+-- Solution 1
+SELECT
+FOOD_TYPE, 
+REST_ID,
+REST_NAME,
+FAVORITES
+FROM REST_INFO
+WHERE (FOOD_TYPE, FAVORITES) IN (SELECT FOOD_TYPE, MAX(FAVORITES)
+                   FROM REST_INFO
+                   GROUP BY FOOD_TYPE)
+ORDER BY FOOD_TYPE DESC; 
+-- Solution 2
+
+
