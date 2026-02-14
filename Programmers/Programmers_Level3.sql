@@ -205,6 +205,7 @@ WHERE YEAR(SALES_DATE) = 2022 AND MONTH(SALES_DATE) = 1
 GROUP BY CATEGORY
 ORDER BY CATEGORY ; 
 
+
 /* "Print restaurant information with the most favorites"
 Link: https://school.programmers.co.kr/learn/courses/30/lessons/131123
 Problem: Please write an SQL statement to retrieve the food category, ID, restaurant name, and number of favorites for the restaurant with the most favorites in each food category from the REST_INFO table. Sort the results in descending order by food category.
@@ -221,5 +222,111 @@ WHERE (FOOD_TYPE, FAVORITES) IN (SELECT FOOD_TYPE, MAX(FAVORITES)
                    GROUP BY FOOD_TYPE)
 ORDER BY FOOD_TYPE DESC; 
 -- Solution 2
+SELECT
+FOOD_TYPE, 
+REST_ID,
+REST_NAME,
+FAVORITES
+FROM (SELECT * , 
+     MAX(FAVORITES) OVER(PARTITION BY FOOD_TYPE) AS MAX_FAV FROM REST_INFO) AS M
+WHERE FAVORITES = MAX_FAV
+ORDER BY FOOD_TYPE DESC;
 
 
+
+/* "Print order status by sorting by condition"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/131113
+Problem: Please write a SQL statement to retrieve the order ID, product ID, shipping date, and shipping status from the FOOD_ORDER table as of May 1, 2022. For shipping status, output "Shipped Completed" as of May 1, 2022, "Pending Shipment" for any date after May 1, 2022, and "Undecided Shipment" if undecided. Sort the results in ascending order by order ID.
+*/
+-- Solution 
+SELECT
+ORDER_ID,
+PRODUCT_ID, 
+DATE_FORMAT(OUT_DATE, '%Y-%m-%d') AS OUT_DATE, 
+CASE 
+    WHEN OUT_DATE <= '2022-05-01' THEN "출고완료"
+    WHEN OUT_DATE > '2022-05-01' THEN "출고대기"
+    ELSE "출고미정"
+END AS "출고여부"
+FROM FOOD_ORDER
+ORDER BY ORDER_ID ; 
+
+
+/* "Places owned by heavy users"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/77487
+Problem: This service refers to people who have registered more than one space as "heavy users." Please write an SQL statement that retrieves information about spaces registered by heavy users, sorted by ID.
+*/
+-- Solution 
+SELECT
+ID,
+NAME,
+HOST_ID
+FROM PLACES
+WHERE HOST_ID IN (SELECT HOST_ID FROM PLACES 
+                 GROUP BY HOST_ID
+                 HAVING COUNT(HOST_ID) >= 2)
+ORDER BY ID ; 
+
+
+
+/* "Long-term protected animals (2)"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/59411#qna
+Problem: Please write a SQL statement to retrieve the IDs and names of the two animals with the longest foster care periods among those adopted. The results should be sorted by longest foster care period.
+*/
+-- Solution 
+SELECT
+ANIMAL_ID,
+NAME
+FROM (SELECT I.ANIMAL_ID, I.NAME, DATEDIFF(O.DATETIME, I.DATETIME) AS DURATION
+     FROM ANIMAL_INS I
+     LEFT JOIN ANIMAL_OUTS O
+     ON I.ANIMAL_ID = O.ANIMAL_ID
+     ORDER BY DURATION DESC
+     LIMIT 2) AS A ;
+
+ 
+ /* "Long-term protected animals (1)"
+ Link: https://school.programmers.co.kr/learn/courses/30/lessons/59044
+ Problem: Please write a SQL statement to retrieve the names and start dates of the three animals that have been in the shelter the longest, among those who have not yet been adopted. The results should be sorted by start date.
+ */
+ -- Solution 
+ SELECT
+I.NAME,
+I.DATETIME
+FROM ANIMAL_INS I 
+LEFT JOIN ANIMAL_OUTS O
+ON I.ANIMAL_ID = O.ANIMAL_ID
+WHERE O.DATETIME IS NULL
+ORDER BY I.DATETIME 
+LIMIT 3 ; 
+
+/* "It was there, but it wasn't there"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/59043
+Problem: An administrator's mistake resulted in incorrect adoption dates for some animals. Please write a SQL statement to retrieve the IDs and names of animals whose adoption dates are earlier than their care start dates. The results should be sorted by the earliest care start date.
+*/
+-- Solution 
+SELECT
+I.ANIMAL_ID,
+I.NAME
+FROM ANIMAL_INS I
+LEFT JOIN ANIMAL_OUTS O
+ON I.ANIMAL_ID = O.ANIMAL_ID
+WHERE I.DATETIME > O.DATETIME 
+ORDER BY I.DATETIME ; 
+
+
+/* "Finding Lost Records"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/59042
+Problem: Due to a natural disaster, some data was lost. Please write an SQL statement to retrieve the IDs and names of animals that have been adopted but have no record of entering the shelter, sorted by ID.
+*/
+-- Solution 
+SELECT
+O.ANIMAL_ID, 
+O.NAME
+FROM ANIMAL_INS I
+RIGHT JOIN ANIMAL_OUTS O
+ON I.ANIMAL_ID = O.ANIMAL_ID
+WHERE I.DATETIME IS NULL AND O.DATETIME IS NOT NULL
+ORDER BY I.ANIMAL_ID ;
+
+-- DONE 

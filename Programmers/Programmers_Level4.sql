@@ -117,3 +117,108 @@ WHERE C.CAR_TYPE IN ('세단', 'SUV')
               WHERE NOT (START_DATE > '2022-11-30' OR END_DATE < '2022-11-01') )
 HAVING FEE BETWEEN 500000 AND 2000000-1
 ORDER BY 3 DESC, 2 ASC, 1 DESC ;
+
+/* "Find rental amount by car rental record"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/151141#qna
+Problem: Please write a SQL statement that finds the rental amount (column name: FEE) for each rental record of a car whose type is 'Truck' in the CAR_RENTAL_COMPANY_CAR, CAR_RENTAL_COMPANY_RENTAL_HISTORY, and CAR_RENTAL_COMPANY_DISCOUNT_PLAN tables and outputs a list of rental record IDs and rental amounts. Sort the results in descending order by rental amount, and if the rental amounts are the same, sort them in descending order by rental record ID.
+*/
+-- Solution 
+WITH A AS (
+SELECT H.CAR_ID, CAR_TYPE, HISTORY_ID, (DATEDIFF(END_DATE, START_DATE)+1) AS DURATION, DAILY_FEE 
+    FROM CAR_RENTAL_COMPANY_RENTAL_HISTORY H
+    LEFT JOIN CAR_RENTAL_COMPANY_CAR C
+    ON H.CAR_ID = C.CAR_ID
+    WHERE C.CAR_TYPE = '트럭'
+)
+
+SELECT HISTORY_ID, 
+FLOOR(DAILY_FEE * DURATION * (1 - IFNULL(P.DISCOUNT_RATE, 0) / 100)) AS FEE
+FROM A 
+LEFT JOIN CAR_RENTAL_COMPANY_DISCOUNT_PLAN P
+ON A.CAR_TYPE = P.CAR_TYPE AND 
+P.DURATION_TYPE = 
+    CASE
+    WHEN DURATION >= 90 THEN "90일 이상"
+    WHEN DURATION >= 30 THEN "30일 이상"
+    WHEN DURATION >= 7 THEN "7일 이상"
+    ELSE NULL
+    END 
+GROUP BY HISTORY_ID
+ORDER BY FEE DESC, HISTORY_ID DESC ; 
+
+
+/* "Aggregate sales by category and author"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/144856
+Problem: Based on book sales data from January 2022, please write an SQL statement that calculates sales by author and category (TOTAL_SALES = sales volume * sales price) and outputs a list of author IDs (AUTHOR_ID), author names (AUTHOR_NAME), categories (CATEGORY), and sales (SALES). Sort the results in ascending order by author ID, or, if the author IDs are the same, in descending order by category.
+*/
+-- Solution 
+SELECT
+B.AUTHOR_ID,
+A.AUTHOR_NAME,
+B.CATEGORY,
+SUM(S.SALES * B.PRICE) AS TOTAL_SALES
+FROM BOOK B
+LEFT JOIN AUTHOR A
+ON B.AUTHOR_ID = A.AUTHOR_ID
+LEFT JOIN BOOK_SALES S
+ON B.BOOK_ID = S.BOOK_ID
+WHERE DATE_FORMAT(S.SALES_DATE, '%Y-%m') = '2022-01'
+GROUP BY A.AUTHOR_ID, B.CATEGORY 
+ORDER BY AUTHOR_ID , CATEGORY DESC 
+
+
+/* "Check out the most popular ice creams"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/133027
+Problem: Please write a SQL statement to retrieve the top 3 flavors based on the sum of the total ice cream orders in July and the total ice cream orders in the first half of the year.
+*/
+-- Solution
+WITH A AS (
+SELECT FLAVOR, 
+SUM(TOTAL_ORDER) AS TOTAL_ORDER 
+    FROM JULY 
+    GROUP BY FLAVOR 
+)
+
+SELECT FLAVOR
+FROM (SELECT H.FLAVOR, 
+      SUM(H.TOTAL_ORDER + A.TOTAL_ORDER) AS TOTAL
+     FROM FIRST_HALF H 
+     LEFT JOIN A 
+     ON H.FLAVOR = A.FLAVOR
+     GROUP BY FLAVOR
+     ) F
+ORDER BY TOTAL DESC
+LIMIT 3 ; 
+
+
+
+/* "Check your uncanceled appointments"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/132204#qna
+Problem: Please write a SQL statement to retrieve all unreserved thoracic surgery (CS) appointments from the PATIENT, DOCTOR, and APPOINTMENT tables as of April 13, 2022. Please output the appointment number, patient name, patient ID, department code, physician name, and appointment date and time. Sort the results in ascending order by appointment date and time.
+*/
+-- Solution 
+WITH A AS (
+SELECT * 
+    FROM APPOINTMENT 
+    WHERE APNT_CNCL_YN = 'N' AND DATE_FORMAT(APNT_YMD, '%Y-%m-%d') = '2022-04-13' AND MCDP_CD = 'CS'
+)
+
+SELECT
+A.APNT_NO,
+P.PT_NAME,
+P.PT_NO, 
+D.MCDP_CD, 
+D.DR_NAME, 
+A.APNT_YMD 
+FROM PATIENT P
+RIGHT JOIN A
+ON A.PT_NO = P.PT_NO
+LEFT JOIN DOCTOR D
+ON A.MDDR_ID = D.DR_ID
+ORDER BY A.APNT_YMD ; 
+
+/* "Integrating offline and online sales data"
+Link: https://school.programmers.co.kr/learn/courses/30/lessons/131537#qna
+Problem: Please write a SQL statement that outputs the sales date, product ID, user ID, and sales volume for offline/online product sales data for March 2022 from the ONLINE_SALE and OFFLINE_SALE tables. Please mark the USER_ID value in the OFFLINE_SALE table as NULL. Sort the results in ascending order by sales date. If the sales date is the same, sort by product ID in ascending order. If the product ID is the same, sort by user ID in ascending order.
+*/
+-- Solution
